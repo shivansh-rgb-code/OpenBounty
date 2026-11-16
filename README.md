@@ -178,6 +178,10 @@ This project is an educational portfolio project and has not undergone an indepe
 - More comprehensive frontend testing.
 - Additional smart contract security testing.
 
+## Deployed URL
+
+https://creative-pony-2e920e.netlify.app/
+
 ## License
 
 MIT
