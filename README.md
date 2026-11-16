@@ -62,11 +62,11 @@ OpenBounty/
 
 **Contract Address:**
 
-`0xeb24487bF189B9FDE17Ccac8f2084401E26C3206`
+`0x670c01EcAdddE806b9B16c67Ddf278938de3aD34`
 
-- [View on Etherscan](https://sepolia.etherscan.io/address/0xeb24487bF189B9FDE17Ccac8f2084401E26C3206)
-- [View on Blockscout](https://eth-sepolia.blockscout.com/address/0xeb24487bF189B9FDE17Ccac8f2084401E26C3206)
-- [View on Sourcify](https://sourcify.dev/server/repo-ui/11155111/0xeb24487bF189B9FDE17Ccac8f2084401E26C3206)
+- [View on Etherscan](https://sepolia.etherscan.io/address/0x670c01EcAdddE806b9B16c67Ddf278938de3aD34)
+- [View on Blockscout](https://eth-sepolia.blockscout.com/address/0x670c01EcAdddE806b9B16c67Ddf278938de3aD34)
+- [View on Sourcify](https://sourcify.dev/server/repo-ui/11155111/0x670c01EcAdddE806b9B16c67Ddf278938de3aD34)
 
 The contract source code has been verified on the above explorers.
 
