@@ -1,57 +1,183 @@
-# Sample Hardhat 3 Project (`mocha` and `ethers`)
+# OpenBounty
 
-This project showcases a Hardhat 3 project using `mocha` for tests and the `ethers` library for Ethereum interactions.
+A decentralized bounty platform built on Ethereum, allowing users to create funded tasks, submit work, and receive rewards through smart contracts.
 
-To learn more about Hardhat 3, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3](https://hardhat.org/hardhat3-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+## Overview
 
-## Project Overview
+OpenBounty uses an Ethereum smart contract to manage bounty creation, submissions, winner selection, and reward distribution.
 
-This example project includes:
+The platform removes the need for a centralized intermediary to hold and distribute bounty funds.
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using `mocha` and ethers.js
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+## Features
 
-## Usage
+- **Create Bounties:** Create a bounty by depositing ETH and setting a submission deadline.
+- **Submit Work:** Participants submit their work using an IPFS CID.
+- **One Submission Per Wallet:** Each wallet can submit once per bounty.
+- **Winner Selection:** The bounty creator selects a winning submission after the deadline.
+- **Reward Withdrawal:** Winners withdraw their rewards independently.
+- **Bounty Cancellation:** Creators can cancel bounties that have no submissions.
+- **Unused Reward Recovery:** Creators can reclaim funds when a bounty expires without submissions.
+- **Abandoned Bounty Recovery:** Anyone can trigger the refund process if the creator does not select a winner within seven days after the deadline.
 
-### Running Tests
+## Tech Stack
 
-To run all the tests in the project, execute the following command:
+| Component | Technology |
+|---|---|
+| Smart Contracts | Solidity |
+| Development Environment | Hardhat |
+| Frontend | React + TypeScript |
+| Build Tool | Vite |
+| Blockchain Interaction | Ethers.js |
+| Wallet | MetaMask |
+| Network | Ethereum Sepolia |
+| Work Storage | IPFS |
 
-```shell
+## Project Structure
+
+```text
+OpenBounty/
+├── contracts/
+│   └── OpenBounty.sol
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── App.tsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   ├── contract.ts
+│   │   └── main.tsx
+│   └── package.json
+├── scripts/
+│   └── deploy.ts
+├── test/
+│   └── OpenBounty.ts
+├── hardhat.config.ts
+├── package.json
+└── README.md
+```
+
+## Smart Contract
+
+**Network:** Ethereum Sepolia
+
+**Contract Address:**
+
+`0xeb24487bF189B9FDE17Ccac8f2084401E26C3206`
+
+- [View on Etherscan](https://sepolia.etherscan.io/address/0xeb24487bF189B9FDE17Ccac8f2084401E26C3206)
+- [View on Blockscout](https://eth-sepolia.blockscout.com/address/0xeb24487bF189B9FDE17Ccac8f2084401E26C3206)
+- [View on Sourcify](https://sourcify.dev/server/repo-ui/11155111/0xeb24487bF189B9FDE17Ccac8f2084401E26C3206)
+
+The contract source code has been verified on the above explorers.
+
+## How It Works
+
+### 1. Create a Bounty
+
+A creator deposits ETH into the contract and specifies a deadline.
+
+### 2. Submit Work
+
+Participants submit an IPFS CID referencing their work.
+
+### 3. Select a Winner
+
+After the submission deadline, the creator can select one submission as the winner.
+
+### 4. Claim the Reward
+
+The contract credits the winner's pending withdrawal balance. The winner calls `claimReward()` to withdraw the funds.
+
+### 5. Handle Unclaimed Bounties
+
+- If nobody submits work, the creator can reclaim the reward after the deadline.
+- If submissions exist but the creator does not select a winner within seven days, anyone can trigger the abandoned-bounty refund.
+- The refund is credited to the creator's pending withdrawal balance.
+
+## Local Setup
+
+### Prerequisites
+
+- Node.js
+- npm
+- MetaMask
+- Sepolia test ETH
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/shivansh-rgb-code/OpenBounty.git
+cd OpenBounty
+```
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Compile Contracts
+
+```bash
+npx hardhat compile
+```
+
+### Run Tests
+
+```bash
 npx hardhat test
 ```
 
-You can also selectively run the Solidity or `mocha` tests:
+### Run Local Deployment
 
-```shell
-npx hardhat test solidity
-npx hardhat test mocha
+```bash
+npx hardhat run scripts/deploy.ts
 ```
 
-### Make a deployment to Sepolia
+### Frontend Setup
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
-
-To run the deployment to a local chain:
-
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
+Open the local Vite URL displayed in your terminal.
 
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
+## Environment Configuration
 
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
+For Sepolia deployment, configure the following Hardhat keystore variables:
 
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
+- `SEPOLIA_RPC_URL`
+- `SEPOLIA_PRIVATE_KEY`
+- `ETHERSCAN_API_KEY`
+
+Never commit private keys, RPC credentials, or `.env` files containing secrets.
+
+Deploy using:
+
+```bash
+npx hardhat run scripts/deploy.ts --network sepolia
 ```
 
-After setting the variable, you can run the deployment with the Sepolia network:
+## Security Considerations
 
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
+- Bounty funds are held by the smart contract.
+- Reward withdrawals use a withdrawal-based payment pattern.
+- The contract prevents duplicate submissions from the same wallet for a bounty.
+- Winner selection is restricted to the bounty creator.
+- Abandoned bounties have a fallback refund mechanism.
+
+This project is an educational portfolio project and has not undergone an independent professional security audit. Use testnet funds only.
+
+## Future Improvements
+
+- Improved IPFS upload integration.
+- Better bounty filtering and search.
+- Transaction history and event indexing.
+- More comprehensive frontend testing.
+- Additional smart contract security testing.
+
+## License
+
+MIT

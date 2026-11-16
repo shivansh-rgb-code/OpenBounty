@@ -1,31 +1,39 @@
-# Node modules
+
+# Dependencies
 /node_modules
+/frontend/node_modules
 
-# Compilation output
-/dist
-
-# pnpm deploy output
-/bundle
-
-# Hardhat Build Artifacts
-/artifacts
-
-# Hardhat compilation (v2) support directory
-/cache
-
-# Typechain output
-/types
-
-# Environment files
+# Environment and secrets
 .env
 .env.*
 !.env.example
 
-# Hardhat coverage reports
+# Hardhat generated files
+/artifacts
+/cache
+/types
 /coverage
-
-# Gas snapshot files
+/gas-report.txt
 /.gas-snapshot
 
-# Snapshot cheatcodes output
-/snapshots
+# Frontend generated files
+/frontend/dist
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Development tool instructions
+/.agents
+/.claude
+/AGENTS.md
+/CLAUDE.md
+
+/.agents
+/.claude
+/AGENTS.md
+/CLAUDE.md
+/scripts/send-op-tx.ts
+/frontend/README.md
