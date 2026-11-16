@@ -14,13 +14,19 @@ describe("OpenBounty", function () {
     const reward = ethers.parseEther("1");
     const SELECTION_PERIOD = 7 * 24 * 60 * 60;
 
-    async function createBounty() {
+    async function createBounty(
+        title = "Build a website",
+        description = "Create a responsive website for a project"
+    ) {
         const block = await ethers.provider.getBlock("latest");
         const deadline = BigInt(block!.timestamp + 3600);
 
-        await bounty.connect(creator).createBounty(deadline, {
-            value: reward
-        });
+        await bounty.connect(creator).createBounty(
+            title,
+            description,
+            deadline,
+            { value: reward }
+        );
 
         return deadline;
     }
@@ -54,9 +60,14 @@ describe("OpenBounty", function () {
             await createBounty();
 
             const stored = await bounty.bounties(1);
+            const details = await bounty.getBounty(1);
 
             expect(stored.creator).to.equal(creator.address);
             expect(stored.reward).to.equal(reward);
+            expect(details.title).to.equal("Build a website");
+            expect(details.description).to.equal(
+                "Create a responsive website for a project"
+            );
             expect(await bounty.bountyCount()).to.equal(1);
         });
 
@@ -65,15 +76,55 @@ describe("OpenBounty", function () {
             const deadline = BigInt(block!.timestamp + 3600);
 
             await expectRevert(
-                () => bounty.createBounty(deadline, { value: 0 }),
+                () => bounty.createBounty(
+                    "Build a website",
+                    "Create a responsive website",
+                    deadline,
+                    { value: 0 }
+                ),
                 "Reward must be greater than zero"
             );
         });
 
         it("Should reject past deadlines", async function () {
             await expectRevert(
-                () => bounty.createBounty(1, { value: reward }),
+                () => bounty.createBounty(
+                    "Build a website",
+                    "Create a responsive website",
+                    1,
+                    { value: reward }
+                ),
                 "Deadline must be in future"
+            );
+        });
+
+        it("Should reject an empty title", async function () {
+            const block = await ethers.provider.getBlock("latest");
+            const deadline = BigInt(block!.timestamp + 3600);
+
+            await expectRevert(
+                () => bounty.createBounty(
+                    "",
+                    "Some description",
+                    deadline,
+                    { value: reward }
+                ),
+                "Title cannot be empty"
+            );
+        });
+
+        it("Should reject an empty description", async function () {
+            const block = await ethers.provider.getBlock("latest");
+            const deadline = BigInt(block!.timestamp + 3600);
+
+            await expectRevert(
+                () => bounty.createBounty(
+                    "Some title",
+                    "",
+                    deadline,
+                    { value: reward }
+                ),
+                "Description cannot be empty"
             );
         });
     });

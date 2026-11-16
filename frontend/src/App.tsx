@@ -13,6 +13,8 @@ import "./App.css";
 interface Bounty {
   id: number;
   creator: string;
+  title: string;
+  description: string;
   reward: string;
   deadline: string;
   deadlineTimestamp: number;
@@ -33,6 +35,8 @@ function App() {
   const [bounties, setBounties] = useState<Bounty[]>([]);
   const [pendingReward, setPendingReward] = useState("0");
 
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [reward, setReward] = useState("");
   const [deadline, setDeadline] = useState("");
 
@@ -105,10 +109,13 @@ function App() {
 
       for (let i = 1; i <= total; i++) {
         const bounty = await contract.bounties(i);
+        const details = await contract.getBounty(i);
 
         loadedBounties.push({
           id: i,
           creator: bounty.creator,
+          title: details.title,
+          description: details.description,
           reward: formatEther(bounty.reward),
           deadline: new Date(
             Number(bounty.deadline) * 1000
@@ -158,6 +165,14 @@ function App() {
       setError("");
       setMessage("");
 
+      if (!title.trim()) {
+        throw new Error("Please enter a bounty title.");
+      }
+
+      if (!description.trim()) {
+        throw new Error("Please enter a bounty description.");
+      }
+
       if (!reward || Number(reward) <= 0) {
         throw new Error("Enter a valid reward amount.");
       }
@@ -186,6 +201,8 @@ function App() {
       );
 
       const transaction = await contract.createBounty(
+        title.trim(),
+        description.trim(),
         deadlineTimestamp,
         { value: parseEther(reward) }
       );
@@ -195,6 +212,8 @@ function App() {
 
       setMessage("Bounty created successfully!");
 
+      setTitle("");
+      setDescription("");
       setReward("");
       setDeadline("");
 
@@ -490,6 +509,24 @@ function App() {
               <h2>Create a Bounty</h2>
 
               <div className="create-form">
+                <label htmlFor="title">Bounty Title</label>
+                <input
+                  id="title"
+                  type="text"
+                  placeholder="e.g. Build a responsive website"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+
+                <label htmlFor="description">Description</label>
+                <textarea
+                  id="description"
+                  placeholder="Describe the task, requirements, and expected result."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                />
+
                 <label htmlFor="reward">Reward (ETH)</label>
                 <input
                   id="reward"
@@ -531,13 +568,17 @@ function App() {
                   <option value="">Choose a bounty</option>
                   {activeBounties.map((bounty) => (
                     <option key={bounty.id} value={bounty.id}>
-                      Bounty #{bounty.id} — {bounty.reward} ETH
+                      #{bounty.id} — {bounty.title} — {bounty.reward} ETH
                     </option>
                   ))}
                 </select>
 
                 {selected && (
                   <p className="selected-info">
+                    <strong>{selected.title}</strong>
+                    <br />
+                    {selected.description}
+                    <br />
                     Deadline: {selected.deadline}
                     <br />
                     Submissions: {selected.submissionCount}
@@ -585,7 +626,7 @@ function App() {
                   <option value="">Choose a bounty</option>
                   {bountiesWithSubmissions.map((bounty) => (
                     <option key={bounty.id} value={bounty.id}>
-                      Bounty #{bounty.id} — {bounty.submissionCount} submissions
+                      #{bounty.id} — {bounty.title} — {bounty.submissionCount} submissions
                     </option>
                   ))}
                 </select>
@@ -600,6 +641,10 @@ function App() {
 
               {selected && (
                 <p className="selected-info">
+                  <strong>{selected.title}</strong>
+                  <br />
+                  {selected.description}
+                  <br />
                   Creator: {selected.creator}
                   <br />
                   Deadline: {selected.deadline}
@@ -712,7 +757,9 @@ function App() {
 
                   return (
                     <div className="bounty-card" key={bounty.id}>
-                      <h3>Bounty #{bounty.id}</h3>
+                      <h3>#{bounty.id} — {bounty.title}</h3>
+
+                      <p>{bounty.description}</p>
 
                       <p>
                         <strong>Reward:</strong> {bounty.reward} ETH
